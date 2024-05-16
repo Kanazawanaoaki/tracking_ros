@@ -68,15 +68,15 @@ class DevaNode(ConnectionBasedTransport):
         self.track_flag = True
         return config
 
-    def publish_result(self, mask, vis, frame_id):
+    def publish_result(self, mask, vis, frame_id, stamp):
         if mask is not None:
             seg_msg = self.bridge.cv2_to_imgmsg(mask.astype(np.int32), encoding="32SC1")
-            seg_msg.header.stamp = rospy.Time.now()
+            seg_msg.header.stamp = stamp
             seg_msg.header.frame_id = frame_id
             self.pub_segmentation_img.publish(seg_msg)
         if vis is not None:
             vis_img_msg = self.bridge.cv2_to_imgmsg(vis, encoding="rgb8")
-            vis_img_msg.header.stamp = rospy.Time.now()
+            vis_img_msg.header.stamp = stamp
             vis_img_msg.header.frame_id = frame_id
             self.pub_vis_img.publish(vis_img_msg)
 
@@ -168,7 +168,7 @@ class DevaNode(ConnectionBasedTransport):
                         rect.height = int(box[3] - box[1])
                         rects.append(rect)
                     rect_array = RectArray(rects=rects)
-                    rect_array.header.stamp = rospy.Time.now()
+                    rect_array.header.stamp = stamp
                     rect_array.header.frame_id = img_msg.header.frame_id
                     self.pub_rects.publish(rect_array)
 
@@ -189,7 +189,7 @@ class DevaNode(ConnectionBasedTransport):
                     # self.pub_class.publish(class_result)
                 else:
                     self.visualization = overlay_davis(self.image.copy(), self.mask)
-                self.publish_result(self.mask, self.visualization, img_msg.header.frame_id)
+                self.publish_result(self.mask, self.visualization, img_msg.header.frame_id, img_msg.header.stamp)
 
 
 if __name__ == "__main__":

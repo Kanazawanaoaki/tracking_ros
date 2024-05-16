@@ -70,11 +70,11 @@ class GroundingDinoNode(ConnectionBasedTransport):
         self.detect_flag = True
         return config
 
-    def publish_result(self, boxes, label_names, scores, mask, vis, frame_id):
+    def publish_result(self, boxes, label_names, scores, mask, vis, frame_id, stamp):
         if label_names is not None:
             label_array = LabelArray()
             label_array.labels = [Label(id=i + 1, name=name) for i, name in enumerate(label_names)]
-            label_array.header.stamp = rospy.Time.now()
+            label_array.header.stamp = stamp
             label_array.header.frame_id = frame_id
             self.pub_labels.publish(label_array)
 
@@ -98,19 +98,19 @@ class GroundingDinoNode(ConnectionBasedTransport):
                 rect.height = int(box[3] - box[1])  # y2 - y1
                 rects.append(rect)
             rect_array = RectArray(rects=rects)
-            rect_array.header.stamp = rospy.Time.now()
+            rect_array.header.stamp = stamp
             rect_array.header.frame_id = frame_id
             self.pub_rects.publish(rect_array)
 
         if vis is not None:
             vis_img_msg = self.bridge.cv2_to_imgmsg(vis, encoding="rgb8")
-            vis_img_msg.header.stamp = rospy.Time.now()
+            vis_img_msg.header.stamp = stamp
             vis_img_msg.header.frame_id = frame_id
             self.pub_vis_img.publish(vis_img_msg)
 
         if mask is not None:
             seg_msg = self.bridge.cv2_to_imgmsg(mask, encoding="32SC1")
-            seg_msg.header.stamp = rospy.Time.now()
+            seg_msg.header.stamp = stamp
             seg_msg.header.frame_id = frame_id
             self.pub_seg.publish(seg_msg)
 
@@ -165,7 +165,7 @@ class GroundingDinoNode(ConnectionBasedTransport):
             visualization = LABEL_ANNOTATOR.annotate(
                 scene=visualization, detections=detections, labels=labels_with_scores
             )
-            self.publish_result(detections.xyxy, labels, scores, segmentation, visualization, img_msg.header.frame_id)
+            self.publish_result(detections.xyxy, labels, scores, segmentation, visualization, img_msg.header.frame_id, img_msg.header.stamp)
 
     def process_prompt(
         self,

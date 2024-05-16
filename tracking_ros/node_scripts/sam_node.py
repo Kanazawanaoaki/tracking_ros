@@ -293,15 +293,15 @@ class SAMNode(ConnectionBasedTransport):
             mask, _ = remove_small_regions(mask, self.area_threshold, mode=self.refine_mode)
         return mask, logit
 
-    def publish_result(self, mask, vis, frame_id):
+    def publish_result(self, mask, vis, frame_id, stamp):
         if mask is not None:
             seg_msg = self.bridge.cv2_to_imgmsg(mask.astype(np.int32), encoding="32SC1")
-            seg_msg.header.stamp = rospy.Time.now()
+            seg_msg.header.stamp = stamp
             seg_msg.header.frame_id = frame_id
             self.pub_seg.publish(seg_msg)
         if vis is not None:
             vis_img_msg = self.bridge.cv2_to_imgmsg(vis, encoding="rgb8")
-            vis_img_msg.header.stamp = rospy.Time.now()
+            vis_img_msg.header.stamp = stamp
             vis_img_msg.header.frame_id = frame_id
             self.pub_vis_img.publish(vis_img_msg)
 
@@ -309,7 +309,7 @@ class SAMNode(ConnectionBasedTransport):
         if self.interactive_mode:
             self.image = self.bridge.imgmsg_to_cv2(img_msg, desired_encoding="rgb8")
             if self.publish_mask:
-                self.publish_result(self.mask, self.visualization, img_msg.header.frame_id)
+                self.publish_result(self.mask, self.visualization, img_msg.header.frame_id, img_msg.header.stamp)
             else:
                 if self.sam_config.mode == "prompt":  # when prompt mode
                     self.visualization = self.image.copy()

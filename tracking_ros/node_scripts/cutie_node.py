@@ -102,15 +102,15 @@ class CutieNode(object):  # should not be ConnectionBasedNode cause Cutie tracke
             self.mask = self.predictor.step(image_torch, mask_torch[1:], idx_mask=False)
         return True
 
-    def publish_result(self, mask, vis, frame_id):
+    def publish_result(self, mask, vis, frame_id, stamp):
         if mask is not None:
             seg_msg = self.bridge.cv2_to_imgmsg(mask.astype(np.int32), encoding="32SC1")
-            seg_msg.header.stamp = rospy.Time.now()
+            seg_msg.header.stamp = stamp
             seg_msg.header.frame_id = frame_id
             self.pub_segmentation_img.publish(seg_msg)
         if vis is not None:
             vis_img_msg = self.bridge.cv2_to_imgmsg(vis, encoding="rgb8")
-            vis_img_msg.header.stamp = rospy.Time.now()
+            vis_img_msg.header.stamp = stamp
             vis_img_msg.header.frame_id = frame_id
             self.pub_vis_img.publish(vis_img_msg)
 
@@ -145,7 +145,7 @@ class CutieNode(object):  # should not be ConnectionBasedNode cause Cutie tracke
                         detections=detections,
                         labels=[f"ObjectID : {i}" for i in range(len(xyxy))],
                     )
-            self.publish_result(self.mask, self.visualization, img_msg.header.frame_id)
+            self.publish_result(self.mask, self.visualization, img_msg.header.frame_id, img_msg.header.stamp)
 
 
 if __name__ == "__main__":
