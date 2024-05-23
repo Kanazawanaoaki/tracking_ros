@@ -330,7 +330,7 @@ class SAMNode(ConnectionBasedTransport):
                         self.prompt_bbox,
                         f"Prompt {self.num_mask}",
                     )
-                    self.publish_result(None, self.visualization, img_msg.header.frame_id)
+                    self.publish_result(None, self.visualization, img_msg.header.frame_id, img_msg.header.stamp)
 
                 else:
                     masks = self.predictor.generate(self.image)  # dict of masks
