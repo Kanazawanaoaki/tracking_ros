@@ -153,6 +153,7 @@ class DevaNode(ConnectionBasedTransport):
                     )
                     painted_image = overlay_davis(self.image.copy(), self.mask)
                     # TODO convert labels to class name, but it needs some trick because object id and class id is not consistent between tracking and detecting
+                    print("tmp debug!!!")
                     self.visualization = BOX_ANNOTATOR.annotate(
                         scene=painted_image,
                         detections=detections,

@@ -1,5 +1,5 @@
 setuptools>=65.0.0
-numpy>=1.24.0
+numpy>=1.24.0,<2
 matplotlib>=3.6.0
 tqdm>=4.62.3
 networkx>=3.1
@@ -28,7 +28,7 @@ transformers
 addict
 yapf
 timm
-supervision
+supervision==0.21.0
 pycocotools
 mss
 dataclasses
